@@ -16,7 +16,7 @@ And that's it.
 
 ## Example
 
-baisc rust structure.
+basic rust structure.
 ```rust
 struct Test {
     position: [f32; 2],
