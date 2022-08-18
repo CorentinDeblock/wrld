@@ -1,10 +1,23 @@
 # WRLD (Wgpu Rust Language Descriptor)
 
-WRLD is a macro to create a description for rust structure for wgpu renderpipeline.
+WRLD is a macro to create a description for rust structure for wgpu render pipeline.
 
 WRLD description is based on Learn wgpu tutorial.
 
 WARNING : Be aware that WRLD is still under development and should not be use on a "production ready" code.
+
+## Getting started
+
+Since WRLD is only a derive macro, WRLD does not come with any wgpu dependency in is Cargo.toml.
+
+It allow WRLD to be more flexible with your need.
+
+So in order to use WRLD, you will need to put 2 dependencies in your Cargo.toml.
+```toml
+wrld = "Your version"
+wgpu = "Your version"
+```
+And that's it.
 
 ## Example
 

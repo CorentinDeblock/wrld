@@ -77,25 +77,3 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
     use desc::derive_wrsl_desc;
     derive_wrsl_desc(item)
 }
-
-
-/*
-#[macro_export]
-macro_rules! Adapter {
-    ($($win: expr), *) => {
-        {
-            let instance = wgpu::Instance::new(wgpu:::Backends::all());
-            let surface = unsafe {instance.create_surface(&$win)};
-            let adapter = instance.request_adapter({
-                &wgpu::RequestAdapterOptions {
-                    power_preference,
-                    compatible_surface: Some(&surface),
-                    force_fallback_adapter: false
-                }
-            }).await.unwrap();
-
-            adapter
-        }
-    };
-}
-*/
