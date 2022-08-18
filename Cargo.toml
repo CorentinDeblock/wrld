@@ -1,0 +1,17 @@
+[package]
+name = "wrld"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+proc_macro = true
+
+[dev_dependencies]
+trybuild = {version = "1.0", features = ["diff"]}
+
+[dependencies]
+syn = {version = "1.0.99", features = ["extra-traits"]}
+quote = "1.0.21"
+proc-macro2 = "1.0.43"
