@@ -30,7 +30,9 @@ struct Test {
 ```
 With WRLD : 
 ```rust
-#[derive(WRLD)]
+use wrld::Desc;
+
+#[derive(Desc)]
 struct Test {
     #[f32x2(0)] position: [f32; 2]
     #[f32x4(1)] color: [f32; 4]
