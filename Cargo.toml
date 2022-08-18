@@ -2,6 +2,13 @@
 name = "wrld"
 version = "0.1.0"
 edition = "2021"
+authors = ["Corentin <corentindeblock@gmail.com>"]
+license = "MIT"
+keywords = ["wgpu", "wgpu macro", "wgpu derive macro"]
+categories = ["accessibility"]
+description = "A wgpu derive macro to help with buffer description"
+readme = "README.md"
+repository = "https://github.com/CorentinDeblock/wrld"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
