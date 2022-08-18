@@ -84,8 +84,6 @@ pub fn derive_wrsl_desc(item: proc_macro::TokenStream) -> proc_macro::TokenStrea
         }
     }
 
-    eprintln!("Length of attrs {}", attrs.len());
-
     quote::quote! {
         impl #ident {
             pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
