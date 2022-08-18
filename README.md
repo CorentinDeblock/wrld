@@ -8,14 +8,9 @@ WARNING : Be aware that WRLD is still under development and should not be use on
 
 ## Getting started
 
-Since WRLD is only a derive macro, WRLD does not come with any wgpu dependency in is Cargo.toml.
-
-It allow WRLD to be more flexible with your need.
-
-So in order to use WRLD, you will need to put 2 dependencies in your Cargo.toml.
+To get started with wrld, just put wrld in your cargo.toml dependency
 ```toml
 wrld = "Your version"
-wgpu = "Your version"
 ```
 And that's it.
 

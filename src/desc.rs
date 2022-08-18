@@ -18,19 +18,6 @@ struct EntityFields {
 }
 
 fn get_entity_field(field: &syn::Field) -> Option<EntityFields> {
-    // let ident = match &field.ident {
-    //     Some(id) => Some(format!("{}", id)),
-    //     None => None
-    // };
-
-    // let ty_ident = match &field.ty {
-    //     syn::Type::Path(syn::TypePath {
-    //         path: syn::Path {segments , ..},
-    //         ..
-    //     }) => segments.first().and_then(|s| Some(format!("{}", s.ident))),
-    //     _ => None
-    // };
-
     let mut attrs: Vec<EntityFieldsAttrs> = Vec::new(); 
     field.attrs.iter().for_each(|a| {
         a.path.segments.iter().for_each(|ps| {

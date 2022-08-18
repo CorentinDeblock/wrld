@@ -1,10 +1,8 @@
 use proc_macro2::{Ident, Punct, Span, Spacing};
 use quote::TokenStreamExt;
 
-use crate::converter::VertexFormat;
-
 pub struct TokenVertexFormat {
-    pub attribute: VertexFormat
+    pub attribute: wgpu::VertexFormat
 }
 
 impl quote::ToTokens for TokenVertexFormat {
