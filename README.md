@@ -1,6 +1,8 @@
 # WRLD (Wgpu Rust Language Descriptor)
 
-WRLD is a proc macro language to create a description for rust structure and then to be send to a renderpipeline.
+WRLD is a macro to create a description for rust structure for wgpu renderpipeline.
+
+WRLD description is based on Learn wgpu tutorial.
 
 WARNING : Be aware that WRLD is still under development and should not be use on a "production ready" code.
 
