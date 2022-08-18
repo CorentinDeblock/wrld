@@ -43,7 +43,7 @@ impl Test {
             attributes: &[
                 wgpu::VertexAttribute {
                     offset: 0u64,
-                    format: wgpu::VertexFormat::Float32x3,
+                    format: wgpu::VertexFormat::Float32x2,
                     shader_location: 0u32,
                 },
                 wgpu::VertexAttribute {
