@@ -56,20 +56,19 @@ pub fn derive_wrsl_desc(item: proc_macro::TokenStream) -> proc_macro::TokenStrea
     let mut attrs : Vec<proc_macro2::TokenStream> = Vec::new();
 
     let mut offset:u64 = 0;
-    let mut shader_location: u32 = 0;
-
     let mut shader_locations: Vec<u32> = Vec::new();
 
     for i in entity.fields {
         for attr in i.attrs {
             let format = convert_type_to_wgpu(attr.name.as_str(), attr.data);
             let tty = TokenVertexFormat { attribute: format.ty};
+            let shader_location = format.shader_location;
 
-            if shader_locations.contains(&format.shader_location) {
+            if shader_locations.contains(&shader_location) {
                 panic!("Cannot have two time the same location in the same struct");
             }
 
-            shader_locations.push(format.shader_location);
+            shader_locations.push(shader_location);
 
             attrs.push(quote::quote! {
                 wgpu::VertexAttribute {
@@ -80,7 +79,6 @@ pub fn derive_wrsl_desc(item: proc_macro::TokenStream) -> proc_macro::TokenStrea
             });
 
             offset += format.offset;
-            shader_location += 1;
         }
     }
 

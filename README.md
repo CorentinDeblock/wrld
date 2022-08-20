@@ -56,3 +56,7 @@ impl Test {
     }
 }
 ```
+
+## Changelog
+
+[Changelog](CHANGELOG.md)
