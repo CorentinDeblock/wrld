@@ -47,7 +47,7 @@ impl Test {
                     shader_location: 0u32,
                 },
                 wgpu::VertexAttribute {
-                    offset: 12u64,
+                    offset: 8u64,
                     format: wgpu::VertexFormat::Float32x4,
                     shader_location: 1u32,
                 },
