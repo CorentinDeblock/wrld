@@ -244,14 +244,15 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
 ///     }
 /// }
 ///
-/// impl Vertex {
-///     pub const fn const_into(self) -> VertexBufferData {
-///         VertexBufferData {
-///             position: self.position,
-///             scale: self.scale,
+/// impl #ident_name {
+///     pub const fn const_into(other_ident_data_to_into_const: &#ident) -> Self {
+///         Self {
+///             #(#into_fields),*
 ///         }
 ///     }
-///
+/// }
+/// 
+/// impl Vertex {
 ///     pub fn mutate<'a>(other_data_from_ident_to_mutate: &'a Vec<VertexBufferData>) -> &'a [u8] {
 ///         bytemuck::cast_slice(other_data_from_ident_to_mutate.as_slice())
 ///     }

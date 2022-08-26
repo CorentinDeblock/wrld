@@ -150,7 +150,7 @@ pub fn derive_wrsl_buffer_data(item: proc_macro::TokenStream) -> proc_macro::Tok
             });
 
             into_fields.push(quote::quote! {
-                #name: self.#name
+                #name: other_ident_data_to_into_const.#name
             });
         }
     });
@@ -208,13 +208,15 @@ pub fn derive_wrsl_buffer_data(item: proc_macro::TokenStream) -> proc_macro::Tok
             }
         }
 
-        impl #ident {
-            pub const fn const_into(self) -> #ident_name {
-                #ident_name {
+        impl #ident_name {
+            pub const fn const_into(other_ident_data_to_into_const: &#ident) -> Self {
+                Self {
                     #(#into_fields),*
                 }
             }
+        }
 
+        impl #ident {
             pub fn mutate<'a>(other_data_from_ident_to_mutate: &'a Vec<#ident_name>) -> &'a [u8] {
                 bytemuck::cast_slice(other_data_from_ident_to_mutate.as_slice())
             }

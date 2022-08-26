@@ -1,3 +1,6 @@
+## 0.2.1 - 2022-08-26
+### Fix
+    - Fixed "constant functions cannot evaluate destructors" error
 ## 0.2.0 - 2022-08-26
 ### Added
     - added a new macro "BufferData" (see docs for more details)
