@@ -1,7 +1,6 @@
-use quote::format_ident;
-
 use crate::converter::{convert_type_to_wgpu, has_type};
 use crate::parser::TokenVertexFormat;
+use crate::parser::parse_attrs;
 
 #[derive(Debug)]
 struct Entity {
@@ -24,16 +23,14 @@ struct EntityFields {
 fn get_entity_field(field: &syn::Field) -> Option<EntityFields> {
     let mut attrs: Vec<EntityFieldsAttrs> = Vec::new();
 
-    field.attrs.iter().for_each(|a| {
-        a.path.segments.iter().for_each(|ps| {
-            let attr_data : syn::LitInt = a.parse_args().unwrap();
+    parse_attrs(&field.attrs,Box::new(|attr| {
+        let lint : syn::LitInt = attr.attribute.parse_args().unwrap();
 
-            attrs.push(EntityFieldsAttrs {
-                name: ps.ident.to_string(),
-                data: attr_data.base10_parse().unwrap(),
-            });
-        })
-    });
+        attrs.push(EntityFieldsAttrs {
+            name: attr.segment.ident.to_string(),
+            data: lint.base10_parse().unwrap()
+        });
+    }));
 
     let entity_fields = EntityFields {
         attrs,
@@ -44,8 +41,23 @@ fn get_entity_field(field: &syn::Field) -> Option<EntityFields> {
     Some(entity_fields)
 }
 
+fn require_repr_c(attrs : &std::vec::Vec<syn::Attribute>) {
+    let mut valid = false;
+
+    parse_attrs(&attrs, Box::new(|attr| {
+        let repr_attr = attr.attribute.parse_args::<syn::Ident>().unwrap().to_string();
+        if attr.segment.ident.to_string() == "repr" && (repr_attr == "C" || repr_attr == "transparent") {
+            valid = true;
+        }
+    }));
+
+    if !valid {
+        panic!("wrld::Desc derive macro require #[repr(C)] or #[repr(transparent)] attribute for safety measure");
+    }
+}
+
 pub fn derive_wrsl_desc(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let syn::DeriveInput {ident, data, ..} = syn::parse_macro_input!(item as syn::DeriveInput);
+    let syn::DeriveInput {ident, data, attrs, ..} = syn::parse_macro_input!(item as syn::DeriveInput);
     let fields = if let syn::Data::Struct(syn::DataStruct {
         fields: syn::Fields::Named(syn::FieldsNamed { ref named, ..}),
         ..
@@ -55,6 +67,8 @@ pub fn derive_wrsl_desc(item: proc_macro::TokenStream) -> proc_macro::TokenStrea
     } else {
         panic!("This is not supported");
     };
+
+    require_repr_c(&attrs);
 
     let entity = Entity {
         fields: fields.iter().filter_map(|field| {get_entity_field(field)}).collect()
@@ -118,7 +132,7 @@ pub fn derive_wrsl_buffer_data(item: proc_macro::TokenStream) -> proc_macro::Tok
         fields: fields.iter().filter_map(|field| {get_entity_field(field)}).collect()
     };
 
-    let ident_name = format_ident!("{}{}", ident, "BufferData");
+    let subclass_name = quote::format_ident!("{}{}", ident, "BufferData");
 
     let mut struct_fields : Vec<proc_macro2::TokenStream> = Vec::new();
     let mut equal_fields : Vec<proc_macro2::TokenStream> = Vec::new();
@@ -158,11 +172,11 @@ pub fn derive_wrsl_buffer_data(item: proc_macro::TokenStream) -> proc_macro::Tok
     quote::quote! {
         #[repr(C)]
         #[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
-        struct #ident_name {
+        struct #subclass_name {
             #(#struct_fields),*
         }
 
-        impl From<#ident> for #ident_name {
+        impl From<#ident> for #subclass_name {
             fn from(other_data_from_ident_to_into: #ident) -> Self {
                 Self {
                     #(#equal_fields),*
@@ -170,7 +184,7 @@ pub fn derive_wrsl_buffer_data(item: proc_macro::TokenStream) -> proc_macro::Tok
             }
         }
 
-        impl From<&'static #ident> for #ident_name {
+        impl From<&'static #ident> for #subclass_name {
             fn from(other_data_from_ident_to_into: &'static #ident) -> Self {
                 Self {
                     #(#equal_fields),*
@@ -178,13 +192,13 @@ pub fn derive_wrsl_buffer_data(item: proc_macro::TokenStream) -> proc_macro::Tok
             }
         }
 
-        impl PartialEq<#ident> for #ident_name {
+        impl PartialEq<#ident> for #subclass_name {
             fn eq(&self, other_ident_data_boolean_condition: &#ident) -> bool {
                 #(#partial_eq_fields)&&*
             }
         }
 
-        impl FromIterator<#ident> for Vec<#ident_name> {
+        impl FromIterator<#ident> for Vec<#subclass_name> {
             fn from_iter<T: IntoIterator<Item = #ident>>(iter: T) -> Self {
                 let mut vec_data_from_ident_from_iterator = Vec::new();
 
@@ -196,7 +210,7 @@ pub fn derive_wrsl_buffer_data(item: proc_macro::TokenStream) -> proc_macro::Tok
             }
         }
 
-        impl FromIterator<&'static #ident> for Vec<#ident_name> {
+        impl FromIterator<&'static #ident> for Vec<#subclass_name> {
             fn from_iter<T: IntoIterator<Item = &'static #ident>>(iter: T) -> Self {
                 let mut vec_data_from_ident_single_from_iterator : Vec<VertexBufferData> = Vec::new();
 
@@ -208,7 +222,7 @@ pub fn derive_wrsl_buffer_data(item: proc_macro::TokenStream) -> proc_macro::Tok
             }
         }
 
-        impl #ident_name {
+        impl #subclass_name {
             pub const fn const_into(other_ident_data_to_into_const: &#ident) -> Self {
                 Self {
                     #(#into_fields),*
@@ -217,12 +231,12 @@ pub fn derive_wrsl_buffer_data(item: proc_macro::TokenStream) -> proc_macro::Tok
         }
 
         impl #ident {
-            pub fn mutate<'a>(other_data_from_ident_to_mutate: &'a Vec<#ident_name>) -> &'a [u8] {
+            pub fn mutate<'a>(other_data_from_ident_to_mutate: &'a Vec<#subclass_name>) -> &'a [u8] {
                 bytemuck::cast_slice(other_data_from_ident_to_mutate.as_slice())
             }
 
-            pub fn transmute(other_data_from_ident_to_transmute: &'static [Self]) -> Vec<#ident_name> {
-                other_data_from_ident_to_transmute.into_iter().collect::<Vec<#ident_name>>() 
+            pub fn transmute(other_data_from_ident_to_transmute: &'static [Self]) -> Vec<#subclass_name> {
+                other_data_from_ident_to_transmute.into_iter().collect::<Vec<#subclass_name>>() 
             }
         }
     }.into()

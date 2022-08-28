@@ -17,3 +17,19 @@ impl quote::ToTokens for TokenVertexFormat {
         tokens.append(Ident::new(format!("{:?}", self.attribute).as_str(), Span::call_site()));
     }
 }
+
+pub struct AttrData<'a> {
+    pub attribute: &'a syn::Attribute,
+    pub segment: &'a syn::PathSegment
+}
+
+pub fn parse_attrs<'a>(attrs : &'a std::vec::Vec<syn::Attribute>, mut callback: Box<dyn FnMut(AttrData) + 'a>) {
+    attrs.iter().for_each(|a| {
+        a.path.segments.iter().for_each(|ps| {
+            callback(AttrData {
+                attribute: &a,
+                segment: &ps,
+            });
+        });
+    });
+}

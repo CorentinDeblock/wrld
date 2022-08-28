@@ -244,10 +244,11 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
 ///     }
 /// }
 ///
-/// impl #ident_name {
-///     pub const fn const_into(other_ident_data_to_into_const: &#ident) -> Self {
+/// impl VertexBufferData {
+///     pub const fn const_into(other_ident_data_to_into_const: &Vertex) -> Self {
 ///         Self {
-///             #(#into_fields),*
+///             position: other_ident_data_to_into_const.position,
+///             scale: other_ident_data_to_into_const.scale
 ///         }
 ///     }
 /// }
