@@ -46,8 +46,13 @@ mod macros;
 /// ```
 /// impl Test {
 ///     pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
+///         // let size_f32 = size_of::<f32>() = 4
+///         // let f32x3 = size_f32 * 3 = 12;
+///         // let f32x4 = size_f32 * 4 = 16;
+///         // let array_stride = 12 + 16 = 28;
+/// 
 ///         wgpu::VertexBufferLayout {
-///             array_stride: std::mem::size_of::<Test>() as wgpu::BufferAddress,
+///             array_stride: 28 as wgpu::BufferAddress // array_stride variable,
 ///             step_mode: wgpu::VertexStepMode::Vertex,
 ///             attributes: &[
 ///                 wgpu::VertexAttribute {
@@ -262,6 +267,18 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
 ///         other_data_from_ident_to_transmute.into_iter().collect::<Vec<VertexBufferData>>() 
 ///     }
 /// }
+/// 
+/// macro_rules! vertex_const_into {
+///     ($data: expr) => {
+///         VertexBufferData::const_into(&$data)
+///     };
+/// }
+///
+/// macro_rules! mutate_vertex {
+///     ($data: expr) => {
+///         Vertex::mutate(&Vertex::transmute($data))
+///     };
+/// }
 /// ```
 /// Also bytemuck is used for converting structure data to wgpu
 /// 
@@ -292,6 +309,20 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
 /// }.into()
 /// ```
 /// 
+/// If you however want to convert a constant vertex variable.
+/// 
+/// ```
+/// const data : Vertex = Vertex { 
+///     texture: SomeTextureType::new(), 
+///     position: [0.0, 0.0, 0.0], 
+///     message: String::from("something"),
+///     scale: [1.0, 1.0, 1.0]
+/// }
+/// const vertex_buffer_data = VertexBufferData::const_into(&data);
+/// // or
+/// const vertex_buffer_data_new = vertex_const_into!(data);
+/// ```
+/// 
 /// ### Array conversion
 /// 
 /// Array conversion is a little bit more complex. We can't use the .into() because rust will not allow that.
@@ -312,7 +343,9 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
 /// 
 /// fn main() {
 ///     let arr : &[u8] = Vertex::mutate(&Vertex::transmute(data));
-///     
+///     // or
+///     let arr_new : &[u8] = mutate_vertex!(data);
+/// 
 ///     // With wgpu create_buffer_init
 ///     let device = wgpu::Device::new()
 ///     
@@ -320,6 +353,15 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
 ///         &wgpu::utils::BufferInitDescriptor {
 ///             label: Some("Buffer init"),
 ///             contents: Vertex::mutate(&Vertex::transmute(data)),
+///             usage: wgpu::BufferUsages::VERTEX
+///     })
+/// 
+///     // or
+/// 
+///     let vertex_buffer_new = device.create_buffer_init(
+///         &wgpu::utils::BufferInitDescriptor {
+///             label: Some("Buffer init"),
+///             contents: mutate_vertex!(data),
 ///             usage: wgpu::BufferUsages::VERTEX
 ///     })
 /// }

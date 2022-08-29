@@ -1,6 +1,6 @@
 [package]
 name = "wrld"
-version = "0.2.2"
+version = "0.21.3"
 edition = "2021"
 authors = ["Corentin <corentindeblock@gmail.com>"]
 license = "MIT"
@@ -24,3 +24,4 @@ quote = "1.0.21"
 proc-macro2 = "1.0.43"
 wgpu = "0.13.1"
 bytemuck = { version = "1.4", features = [ "derive" ] }
+regex = "1.6.0"

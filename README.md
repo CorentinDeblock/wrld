@@ -44,7 +44,12 @@ Will produce
 impl Test {
     pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
         wgpu::VertexBufferLayout {
-            array_stride: std::mem::size_of::<Test>() as wgpu::BufferAddress,
+            // let size_f32 = size_of::<f32>() = 4
+            // let f32x2 = size_f32 * 2 = 8;
+            // let f32x4 = size_f32 * 4 = 16;
+            // let array_stride = 8 + 16 = 24;
+
+            array_stride: 24 as wgpu::BufferAddress // array_stride variable,
             step_mode: wgpu::VertexStepMode::Vertex,
             attributes: &[
                 wgpu::VertexAttribute {

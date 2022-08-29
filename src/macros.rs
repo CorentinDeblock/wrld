@@ -169,6 +169,18 @@ pub fn derive_wrsl_buffer_data(item: proc_macro::TokenStream) -> proc_macro::Tok
         }
     });
 
+    let ident_regex_lowercase = regex::Regex::new(r"(?P<M>[A-Z])").unwrap();
+    let ident_string = ident.to_string();
+    let replace_all = ident_regex_lowercase.replace_all(ident_string.as_str(), "_$M");
+    let mut result = replace_all.to_ascii_lowercase();
+    
+    if result.chars().nth(0).unwrap() == '_' {
+        result.remove(0);
+    }
+
+    let const_into_macro = quote::format_ident!("{}_const_into", result);
+    let mutate_data_macro = quote::format_ident!("mutate_{}", result);
+
     quote::quote! {
         #[repr(C)]
         #[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
@@ -212,7 +224,7 @@ pub fn derive_wrsl_buffer_data(item: proc_macro::TokenStream) -> proc_macro::Tok
 
         impl FromIterator<&'static #ident> for Vec<#subclass_name> {
             fn from_iter<T: IntoIterator<Item = &'static #ident>>(iter: T) -> Self {
-                let mut vec_data_from_ident_single_from_iterator : Vec<VertexBufferData> = Vec::new();
+                let mut vec_data_from_ident_single_from_iterator : Vec<#subclass_name> = Vec::new();
 
                 for c in iter {
                     vec_data_from_ident_single_from_iterator.push(c.into());
@@ -238,6 +250,18 @@ pub fn derive_wrsl_buffer_data(item: proc_macro::TokenStream) -> proc_macro::Tok
             pub fn transmute(other_data_from_ident_to_transmute: &'static [Self]) -> Vec<#subclass_name> {
                 other_data_from_ident_to_transmute.into_iter().collect::<Vec<#subclass_name>>() 
             }
+        }
+
+        macro_rules! #const_into_macro {
+            ($data: expr) => {
+                #subclass_name::const_into(&$data)
+            };
+        }
+        
+        macro_rules! #mutate_data_macro {
+            ($data: expr) => {
+                #ident::mutate(&#ident::transmute($data))
+            };
         }
     }.into()
 }

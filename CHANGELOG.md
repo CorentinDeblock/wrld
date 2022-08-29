@@ -1,3 +1,10 @@
+## 0.21.3 - 2022-08-29
+### Add
+- Added macro conversion
+### Fix
+- Fixed typo on BufferData macro
+- Fixed old example on Desc macro
+- Fixed old example on readme
 ## 0.2.2 - 2022-08-28
 ### Add
 - Added parse_args function helper for the backend
@@ -11,7 +18,7 @@
 - Fixed "constant functions cannot evaluate destructors" error
 ## 0.2.0 - 2022-08-26
 ### Add
-- Added a new macro "BufferData" (see [doc](https://docs.rs/wrld/0.2.2/wrld/derive.BufferData.html) for more details)
+- Added a new macro "BufferData" (see [doc](https://docs.rs/wrld/0.21.3/wrld/derive.BufferData.html) for more details)
 ### Fix
 - Fixed array_stride data to take only the size of provided attributes
 
@@ -24,3 +31,21 @@
 ### Fix
 - Removed debug printing information
 - Removed useless file
+
+# Summary (all patch since 0.1.0)
+## Add
+- Added macro conversion
+- Added parse_args function helper for the backend
+- Added a new macro "BufferData" (see [doc](https://docs.rs/wrld/0.21.3/wrld/derive.BufferData.html) for more details)
+- Added a changelog.md
+## Fix
+- Fixed typo on BufferData macro
+- Fixed old example on Desc macro
+- Fixed old example on readme
+- Fixed "constant functions cannot evaluate destructors" error
+- Fixed array_stride data to take only the size of provided attributes
+- Fixed errornous shader location
+- Removed debug printing information
+- Removed useless file
+## Change
+- wrld::Desc now require #[repr(C)] or #[repr(transparent)] attribute. This is to make sure to have a fixed layout and avoid safety problem
