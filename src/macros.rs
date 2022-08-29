@@ -24,7 +24,7 @@ fn get_entity_field(field: &syn::Field) -> Option<EntityFields> {
     let mut attrs: Vec<EntityFieldsAttrs> = Vec::new();
 
     parse_attrs(&field.attrs,Box::new(|attr| {
-        let lint : syn::LitInt = attr.attribute.parse_args().unwrap();
+        let lint : syn::LitInt = attr.attribute.parse_args().expect("Only integer is authorize for shader location data");
 
         attrs.push(EntityFieldsAttrs {
             name: attr.segment.ident.to_string(),
@@ -65,7 +65,7 @@ pub fn derive_wrsl_desc(item: proc_macro::TokenStream) -> proc_macro::TokenStrea
     {
         named
     } else {
-        panic!("This is not supported");
+        panic!("Only struct are supported by wrld::Desc supported");
     };
 
     require_repr_c(&attrs);
@@ -252,12 +252,14 @@ pub fn derive_wrsl_buffer_data(item: proc_macro::TokenStream) -> proc_macro::Tok
             }
         }
 
+        #[allow(unused_macros)]
         macro_rules! #const_into_macro {
             ($data: expr) => {
                 #subclass_name::const_into(&$data)
             };
         }
         
+        #[allow(unused_macros)]
         macro_rules! #mutate_data_macro {
             ($data: expr) => {
                 #ident::mutate(&#ident::transmute($data))

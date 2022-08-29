@@ -1,6 +1,6 @@
 [package]
 name = "wrld"
-version = "0.21.3"
+version = "0.21.31"
 edition = "2021"
 authors = ["Corentin <corentindeblock@gmail.com>"]
 license = "MIT"

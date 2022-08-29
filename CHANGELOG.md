@@ -1,3 +1,11 @@
+## 0.21.31 - 2022-08-29
+### Added
+- Added more info on macro name definition for mutate_#structname and #structname_const_into
+### Fix
+- Fixed #[warn(unused_macros)] on mutate_#structname and #structname_const_into
+- Fixed wrld::Desc macro example in doc
+- Fixed exmaple on readme to add #[repr(C)] or #[repr(transparent)] macro
+- Fixed error handing for attribute parameter of wrld::Desc macro
 ## 0.21.3 - 2022-08-29
 ### Add
 - Added macro conversion
@@ -34,11 +42,16 @@
 
 # Summary (all patch since 0.1.0)
 ## Add
+- Added more info on macro name definition for mutate_#structname and #structname_const_into
 - Added macro conversion
 - Added parse_args function helper for the backend
 - Added a new macro "BufferData" (see [doc](https://docs.rs/wrld/0.21.3/wrld/derive.BufferData.html) for more details)
 - Added a changelog.md
 ## Fix
+- Fixed #[warn(unused_macros)] on mutate_#structname and #structname_const_into
+- Fixed wrld::Desc macro example in doc
+- Fixed exmaple on readme to add #[repr(C)] or #[repr(transparent)] macro
+- Fixed error handing for attribute parameter of wrld::Desc macro
 - Fixed typo on BufferData macro
 - Fixed old example on Desc macro
 - Fixed old example on readme

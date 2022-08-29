@@ -35,7 +35,8 @@ mod macros;
 
 /// ```
 /// use wrld::Desc;
-
+///
+/// #[repr(C)]
 /// #[derive(Desc)]
 /// struct Test {
 ///     #[f32x3(0)] position: Vector3
@@ -93,6 +94,7 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
 /// 
 /// for example
 /// ```
+/// #[repr(C)]
 /// #[derive(wgpu::Desc)]
 /// struct Vertex {
 ///     some_data: String,
@@ -117,6 +119,7 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
 /// 
 /// for example
 /// ```
+/// #[repr(C)]
 /// #[derive(wgpu::Desc)]
 /// struct Vertex {
 ///     #[f32x2(0)] position: [f32; 2],
@@ -137,6 +140,7 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
 /// 
 /// before that macro, structure like this (chaotic structure)
 /// ```
+/// #[repr(C)]
 /// #[derive(wgpu::Desc)]
 /// struct Vertex {
 ///     uv: [f32; 2],
@@ -150,6 +154,7 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
 /// 
 /// A solution to that was to reorder structure data fields (ordered structure)
 /// ```
+/// #[repr(C)]
 /// #[derive(wgpu::Desc)]
 /// struct Vertex {
 ///     #[f32x2(0)] position: [f32; 2],
@@ -162,6 +167,7 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
 /// But now with BufferData this is not a problem anymore.
 /// BufferData handle any type of chaotic structure so that does mean that this structure for example
 /// ```
+/// #[repr(C)]
 /// #[derive(wgpu::Desc)]
 /// struct Vertex {
 ///     uv: [f32; 4],
@@ -182,6 +188,7 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
 /// 
 /// Take this structure
 /// ```
+/// #[repr(C)]
 /// #[derive(wrld::Desc, wrld::BufferData)]
 /// struct Vertex {
 ///     texture: SomeTextureType,
@@ -287,6 +294,7 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
 /// When you create any chaotic structure for wrld. Just put wrld::BufferData derive macro at the top
 /// 
 /// ```
+/// #[repr(C)]
 /// #[derive(wrld::Desc, wrld::BufferData)]
 /// struct Vertex {
 ///     texture: SomeTextureType,
@@ -364,6 +372,33 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
 ///             contents: mutate_vertex!(data),
 ///             usage: wgpu::BufferUsages::VERTEX
 ///     })
+/// }
+/// ```
+/// 
+/// macro name are formated like this.
+/// - struct name will be all lowercase
+/// - struct that have uppercase letter in his name are prefix with _ and the letter in question except for the starting letter.
+/// 
+/// ### Example
+/// ```
+/// #[repr(C)]
+/// #[derive(wrld::Desc, wrld::BufferData)]
+/// struct VertexData {
+///     #[f32x2(0)] position: [f32; 2]
+///     #[f32x4(1)] color: [f32; 4]
+/// }
+/// 
+/// // is equal to
+/// 
+/// macro_rules! vertex_data_const_into {
+///     ($data: expr) => {
+///         VertexDataBufferData::const_into(&$data)
+///     };
+/// }
+/// macro_rules! mutate_vertex_data { 
+///     ($data: expr) => {
+///         VertexData::mutate(&VertexData::transmute($data))
+///     }; 
 /// }
 /// ```
 /// 

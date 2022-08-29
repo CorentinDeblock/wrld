@@ -33,11 +33,21 @@ With WRLD :
 ```rust
 use wrld::Desc;
 
+#[repr(C)]
 #[derive(Desc)]
 struct Test {
     #[f32x2(0)] position: [f32; 2],
     #[f32x4(1)] color: [f32; 4]
 }
+
+// or
+#[repr(transparent)]
+#[derive(Desc)]
+struct TestTransparent {
+    #[f32x2(0)] position: f32,
+    #[f32x4(1)] color: f32
+}
+
 ```
 Will produce
 ```rust
