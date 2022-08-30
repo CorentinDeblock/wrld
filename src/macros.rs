@@ -56,7 +56,7 @@ fn require_repr_c(attrs : &std::vec::Vec<syn::Attribute>) {
     }
 }
 
-pub fn derive_wrsl_desc(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
+pub fn derive_wrld_desc(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let syn::DeriveInput {ident, data, attrs, ..} = syn::parse_macro_input!(item as syn::DeriveInput);
     let fields = if let syn::Data::Struct(syn::DataStruct {
         fields: syn::Fields::Named(syn::FieldsNamed { ref named, ..}),

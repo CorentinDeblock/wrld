@@ -1,4 +1,11 @@
-## 0.21.31 - 2022-08-29
+## 0.3.0 - 2022-08-30 (Merge of 0.21.31 and 0.21.3 due to semver violation)
+## Added
+- Copy derive macro on TypeToWGPU type (backend)
+- Look 0.21.31 and 0.21.3
+## Fix
+- Renamed function derive implemention from wrsl to wrld
+- Look 0.21.31 and 0.21.3
+## 0.21.31 - 2022-08-29 (Yanked due to semver violation)
 ### Added
 - Added more info on macro name definition for mutate_#structname and #structname_const_into
 ### Fix
@@ -6,7 +13,7 @@
 - Fixed wrld::Desc macro example in doc
 - Fixed exmaple on readme to add #[repr(C)] or #[repr(transparent)] macro
 - Fixed error handing for attribute parameter of wrld::Desc macro
-## 0.21.3 - 2022-08-29
+## 0.21.3 - 2022-08-29 (Yanked due to semver violation)
 ### Add
 - Added macro conversion
 ### Fix

@@ -79,9 +79,8 @@ mod macros;
     s32, s32x2, s32x3, s32x4,
     f64, f64x2, f64x3, f64x4
 ))]
-pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
-    use macros::derive_wrsl_desc;
-    derive_wrsl_desc(item)
+pub fn derive_wrld_desc(item: TokenStream) -> TokenStream {
+    macros::derive_wrld_desc(item)
 }
 
 /// A macro to handle any type of chaotic structure.
@@ -412,7 +411,6 @@ pub fn derive_wrsl_desc(item: TokenStream) -> TokenStream {
 /// There is a simple workaround that is to name const variable all uppercase or just change name of the const variable.
 /// However this problem only occurs on const variable
 #[proc_macro_derive(BufferData)]
-pub fn derive_wrsl_buffer_data(item: TokenStream) -> TokenStream {
-    use macros::derive_wrsl_buffer_data;
-    derive_wrsl_buffer_data(item)
+pub fn derive_wrld_buffer_data(item: TokenStream) -> TokenStream {
+    macros::derive_wrsl_buffer_data(item)
 }

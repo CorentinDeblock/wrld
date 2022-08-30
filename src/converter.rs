@@ -1,6 +1,6 @@
 const F16 : usize = 2;
 
-#[derive(Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct TypeToWGPU {
     pub offset: u64,
     pub ty: wgpu::VertexFormat,
