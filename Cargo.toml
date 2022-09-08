@@ -19,6 +19,7 @@ proc_macro = true
 trybuild = {version = "1.0", features = ["diff"]}
 
 [dependencies]
+const_format = "0.2.26"
 syn = {version = "1.0.99", features = ["extra-traits"]}
 quote = "1.0.21"
 proc-macro2 = "1.0.43"

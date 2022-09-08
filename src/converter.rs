@@ -6,6 +6,7 @@ pub struct TypeToWGPU {
     pub ty: wgpu::VertexFormat,
 }
 
+#[derive(Copy, Clone)]
 pub struct WGPUData {
     pub wgpu_type: TypeToWGPU,
     pub shader_location: u32
@@ -48,19 +49,53 @@ const TYPE_MAPPER : [(&str, TypeToWGPU); 34] = [
     ("f64x4", TypeToWGPU { offset: std::mem::size_of::<[f64; 4]>() as u64, ty: wgpu::VertexFormat::Float64x4 })
 ];
 
-fn get_type(name: &str) -> Option<TypeToWGPU> {
+fn get_type(name: &str) -> Result<TypeToWGPU, String> {
     for i in TYPE_MAPPER {
         if i.0 == name {
-            return Some(i.1)
+            return Ok(i.1)
         }
     }
-    None
+
+    Err(format!("Cannot get type for {:?}", name))
 }
 
-pub fn convert_type_to_wgpu(name: &str, shader_location: u32) -> WGPUData {
-    let wgpu_type = get_type(name).unwrap_or_else(|| {panic!("Attribute not supported")});
+pub fn get_allowed_type(name: &str) -> std::vec::Vec<&str> {
+    let mut vec: std::vec::Vec::<&str> = std::vec::Vec::new();
+    for i in TYPE_MAPPER {
+        if i.0.contains(name) {
+            vec.push(i.0);
+        }
+    }
+    vec
+}
 
-    WGPUData { wgpu_type, shader_location }
+pub fn convert_mat_type_to_wgou(name: &String, shader_location: u32, ty: &mut String) -> std::vec::Vec<WGPUData> {
+    let mut wgpu_vec: Vec<WGPUData> = std::vec::Vec::new();
+    let mut row = ty.clone();
+    row.push_str(&name[name.len() - 2..name.len()]);
+
+    let column: &u32 = &name[name.len() - 3..name.len() - 2].parse().unwrap();
+    let mut final_ty = convert_type_to_wgpu(&row, shader_location).unwrap_or_else(|_| {
+
+        let allowed_types = get_allowed_type(ty)
+            .join(" or ")
+            .replace(ty.as_str(), format!("mat{:?}", column).as_str());
+
+        panic!("Matrix {} cannot be use with {} ! Available matrix are {} for {}", name, ty, allowed_types, ty);
+    });
+
+    for i in 0..*column {
+        final_ty.shader_location += if i == 0 { 0 } else { 1 };
+        wgpu_vec.push(final_ty);
+    }
+
+    wgpu_vec
+}
+
+pub fn convert_type_to_wgpu(name: &String, shader_location: u32) -> Result<WGPUData, String> {
+    let wgpu_type = get_type(name.as_str())?;
+
+    Ok(WGPUData { wgpu_type, shader_location })
 }
 
 pub fn has_type(name: &str) -> bool {

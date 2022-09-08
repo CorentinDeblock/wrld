@@ -4,8 +4,6 @@ WRLD is a set of derive macro to make easy, pleasent and more safe wgpu code.
 
 WRLD description is based on Learn wgpu tutorial.
 
-WARNING : Be aware that WRLD is still under development and should not be use on a "production ready" code.
-
 ## Motivation
 
 The main reason of wrld was to create VertexBufferLayout with only one macro that support all of the type that wgpu support natively.

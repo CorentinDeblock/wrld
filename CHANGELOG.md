@@ -1,3 +1,8 @@
+## 1.0.0 - 2022-09-08
+## Added
+- DescInstance macro
+- Matrix attribute
+- Parser for matrix attribute
 ## 0.3.0 - 2022-08-30 (Merge of 0.21.31 and 0.21.3 due to semver violation)
 ## Added
 - Copy derive macro on TypeToWGPU type (backend)
@@ -49,6 +54,9 @@
 
 # Summary (all patch since 0.1.0)
 ## Add
+- Added DescInstance macro
+- Added matrix attribute
+- Added parser for matrix attribute
 - Added more info on macro name definition for mutate_#structname and #structname_const_into
 - Added macro conversion
 - Added parse_args function helper for the backend

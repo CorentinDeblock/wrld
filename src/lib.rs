@@ -20,9 +20,117 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+//! ## Description
+//! 
 //! wrld is a easy, fast, and more secure way of writing buffer descriptor for wgpu renderpipeline
 //! 
-//! WARNING : Be aware that WRLD is still under development and should not be use on a "production ready" code.
+//! ## How it works ?
+//! 
+//! Wrld take derived structure and crate a VertexBufferLayout according to the attribute passed.
+//! 
+//! Wrld come with 3 macros :
+//! - Desc
+//! - DescInstance
+//! - BufferData
+//! 
+//! ### Desc
+//! 
+//! Desc derive macro allow to create a VertexBufferLayout from a structure.
+//! 
+//! #### Example
+//! ```
+//! #[repr(C)]
+//! #[derive(wrld::Desc)]
+//! struct Vertex {
+//!     #[f32x2(0)] position: [f32; 2],
+//!     #[f32x4(1)] color: [f32; 4]
+//! }
+//! ```
+//! 
+//! #### Thing to know
+//! - Desc will not handle data transformation. (bytemuck slice)
+//! - Desc does not handle chaotic structure.
+//! 
+//! ### DescInstance
+//! 
+//! DescInstance is the same as the Desc macro. The only difference with DescInstance is that it change the vertex step mode but the result is the same.
+//! 
+//! #### Example
+//! ```
+//! #[derive(wrld::DescInstance)]
+//! struct Vertex {
+//!     #[f32x2(0)] position: [f32; 2],
+//!     #[f32x4(1)] color: [f32; 4]
+//! }
+//! ```
+//! 
+//! ### Chaotic and ordered structure.
+//! 
+//! Before aboarding the next macro. We need to know what is the difference between chaotic and ordered structure type.
+//! 
+//! ### Chaotic structure
+//! 
+//! A chaotic structure is a structure that have attributes put anywhere in the struct
+//! 
+//! #### Example 
+//! ```
+//! #[derive(wrld::Desc)]
+//! struct Vertex {
+//!     #[f32x2(0)] position: [f32; 2],
+//!     data: String,
+//!     #[f32x4(1)] color: [f32; 4]
+//! }
+//! ```
+//! If you try to cast slice with bytemuck on this structure. It will result in this.
+//! ```
+//! struct Vertex {
+//!     position: [f32; 2],
+//!     data: String
+//! }
+//! ``` 
+//! And this is not good, because this is not the data that we are expecting to get from bytemuck.
+//! 
+//! A simple fix to that is to create a ordered structure and have one or multiple function that convert this structure to a ordered one or to sort this one.
+//! 
+//! ### Ordered structure
+//! 
+//! A ordered structure is a structure that put the attribute field on top of the structure.
+//! 
+//! #### Example
+//! ```
+//! #[derive(wrld::Desc)]
+//! struct Vertex {
+//!     #[f32x2(0)] position: [f32; 2],
+//!     #[f32x4(1)] color: [f32; 4],
+//!     data: String
+//! }
+//! ```
+//! If you try to cast slice with bytemuck on this structure. It will result in this.
+//! ```
+//! struct Vertex {
+//!     position: [f32; 2],
+//!     color: [f32; 4]
+//! }
+//! ```
+//! 
+//! While this technique work. It could be annoying to rewrite thousand and thousand of structure just to fix this.
+//! This is why the next macro was created for.
+//! 
+//! ### BufferData
+//! 
+//! BufferData create a ordered structure from a chaotic structure. It come with bytemuck derive macro out of the box.
+//! 
+//! #### Example
+//! ```
+//! #[repr(C)]
+//! #[derive(wrld::Desc, wrld::BufferData)]
+//! struct Vertex {
+//!     uv: [f32; 2],
+//!     #[f32x2(0)] position: [f32; 2],
+//!     data: String,
+//!     #[f32x4(1)] color: [f32; 4]
+//! }
+//! ```
 use proc_macro::{TokenStream};
 
 mod converter;
@@ -31,8 +139,7 @@ mod macros;
 
 /// Desc is a proc derive macro that allow you to describe a structure as a description to pass to a renderpipeline.
 ///
-/// Basically it will transform a structure like for example
-
+/// ## Example
 /// ```
 /// use wrld::Desc;
 ///
@@ -71,16 +178,147 @@ mod macros;
 ///     }
 /// }
 /// ```
+/// 
+/// ## Matrice attributes
+/// 
+/// Matrices attributes are kind of special, because matrices are the only attributes that can take multiple location.
+/// 
+/// Matrices need two argument :
+/// - The type of the matrice (u8, f32, f64, ect...)
+/// - And the starting location
+/// 
+/// Matrices dimension start from 2x2 to 4x4
+/// 
+/// ### Example
+/// ```
+/// #[repr(C)]
+/// #[derive(wrld::Desc)]
+/// struct Actor {
+///     #[mat4x2(u8, 0)] transform: [[f32; 4]; 4]
+/// }
+/// ``` 
+/// Will result to
+/// ```
+/// impl Actor {
+///     pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
+///         wgpu::VertexBufferLayout {
+///             array_stride: 8u64 as wgpu::BufferAddress,
+///             step_mode: wgpu::VertexStepMode::Instance,
+///             attributes: &[
+///                 wgpu::VertexAttribute {
+///                     offset: 0u64,
+///                     format: wgpu::VertexFormat::Uint8x2,
+///                     shader_location: 0u32,
+///                 },
+///                 wgpu::VertexAttribute {
+///                     offset: 2u64,
+///                     format: wgpu::VertexFormat::Uint8x2,
+///                     shader_location: 1u32,
+///                 },
+///                 wgpu::VertexAttribute {
+///                     offset: 4u64,
+///                     format: wgpu::VertexFormat::Uint8x2,
+///                     shader_location: 2u32,
+///                 },
+///                 wgpu::VertexAttribute {
+///                     offset: 6u64,
+///                     format: wgpu::VertexFormat::Uint8x2,
+///                     shader_location: 3u32,
+///                 },
+///             ],
+///         }
+///     }
+/// }
+/// ```
+/// So take care while using it.
+/// 
+/// Also matrix type handle only wgpu VertexFormat type for row.
+/// That does mean that matrix like that.
+/// ```
+/// #[repr(C)]
+/// #[derive(wrld::DescInstance)]
+/// struct Vertex {
+///     #[mat4x3(u8, 0)] transform: [[f32; 4]; 4]
+/// }
+/// ```
+/// Will throw an error :
+/// 
+/// "Matrix mat4x3 cannot be use with u8 ! Available matrix are mat4x2 or mat4x4 for u8"
+/// 
+/// 
+/// ## Thing to know
+/// - Desc will not handle data transformation
+/// - Desc does not handle chaotic structure 
 #[proc_macro_derive(Desc, attributes(
     u8x2, u8x4, s8x2, s8x4, un8x2, un8x4, sn8x2, sn8x4,
     u16x2, u16x4, s16x2, s16x4, un16x2, un16x4, sn16x2, sn16x4, f16x2, f16x4,
     f32, f32x2, f32x3, f32x4,
     u32, u32x2, u32x3, u32x4,
     s32, s32x2, s32x3, s32x4,
-    f64, f64x2, f64x3, f64x4
+    f64, f64x2, f64x3, f64x4,
+    mat2x2, mat2x3, mat2x4,
+    mat3x2, mat3x3, mat3x4,
+    mat4x2, mat4x3, mat4x4
 ))]
-pub fn derive_wrld_desc(item: TokenStream) -> TokenStream {
-    macros::derive_wrld_desc(item)
+pub fn derive_wrld_desc(item: TokenStream) -> TokenStream { 
+    macros::derive_wrld_desc(item, wgpu::VertexStepMode::Vertex)
+}
+
+/// DescInstance is the same as Desc. The only difference is that it change the step mode to Instance instead of Vertex
+///
+/// ## Example
+
+/// ```
+/// use wrld::DescInstance;
+///
+/// #[repr(C)]
+/// #[derive(DescInstance)]
+/// struct Test {
+///     #[f32x3(0)] position: Vector3
+///     #[f32x4(1)] color: Vector4
+/// }
+/// ```
+/// into
+/// ```
+/// impl Test {
+///     pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
+///         // let size_f32 = size_of::<f32>() = 4
+///         // let f32x3 = size_f32 * 3 = 12;
+///         // let f32x4 = size_f32 * 4 = 16;
+///         // let array_stride = 12 + 16 = 28;
+/// 
+///         wgpu::VertexBufferLayout {
+///             array_stride: 28 as wgpu::BufferAddress // array_stride variable,
+///             step_mode: wgpu::VertexStepMode::Instance,
+///             attributes: &[
+///                 wgpu::VertexAttribute {
+///                     offset: 0u64,
+///                     format: wgpu::VertexFormat::Float32x3,
+///                     shader_location: 0u32,
+///                 },
+///                 wgpu::VertexAttribute {
+///                     offset: 12u64,
+///                     format: wgpu::VertexFormat::Float32x4,
+///                     shader_location: 1u32,
+///                 },
+///             ],
+///         }
+///     }
+/// }
+/// ```
+#[proc_macro_derive(DescInstance, attributes(
+    u8x2, u8x4, s8x2, s8x4, un8x2, un8x4, sn8x2, sn8x4,
+    u16x2, u16x4, s16x2, s16x4, un16x2, un16x4, sn16x2, sn16x4, f16x2, f16x4,
+    f32, f32x2, f32x3, f32x4,
+    u32, u32x2, u32x3, u32x4,
+    s32, s32x2, s32x3, s32x4,
+    f64, f64x2, f64x3, f64x4,
+    mat2x2, mat2x3, mat2x4,
+    mat3x2, mat3x3, mat3x4,
+    mat4x2, mat4x3, mat4x4
+))]
+pub fn derive_wrld_desc_instance(item: TokenStream) -> TokenStream { 
+    macros::derive_wrld_desc(item, wgpu::VertexStepMode::Instance)
 }
 
 /// A macro to handle any type of chaotic structure.
@@ -154,7 +392,7 @@ pub fn derive_wrld_desc(item: TokenStream) -> TokenStream {
 /// A solution to that was to reorder structure data fields (ordered structure)
 /// ```
 /// #[repr(C)]
-/// #[derive(wgpu::Desc)]
+/// #[derive(wrld::Desc)]
 /// struct Vertex {
 ///     #[f32x2(0)] position: [f32; 2],
 ///     #[f32x4(1)] color: [f32; 4],
@@ -167,7 +405,7 @@ pub fn derive_wrld_desc(item: TokenStream) -> TokenStream {
 /// BufferData handle any type of chaotic structure so that does mean that this structure for example
 /// ```
 /// #[repr(C)]
-/// #[derive(wgpu::Desc)]
+/// #[derive(wrld::Desc)]
 /// struct Vertex {
 ///     uv: [f32; 4],
 ///     #[f32x2(0)] position: [f32; 2],
@@ -412,5 +650,5 @@ pub fn derive_wrld_desc(item: TokenStream) -> TokenStream {
 /// However this problem only occurs on const variable
 #[proc_macro_derive(BufferData)]
 pub fn derive_wrld_buffer_data(item: TokenStream) -> TokenStream {
-    macros::derive_wrsl_buffer_data(item)
+    macros::derive_wrld_buffer_data(item)
 }
