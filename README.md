@@ -76,6 +76,16 @@ impl Test {
 }
 ```
 
+## Running test
+
+WRLD has now some basic test, like basic desc structure testing, basic desc instance testing and buffer data testing. It's not totally complete but it will do for now. Feel free to add test if needed and do a pull request.
+
+To run test
+
+```bash
+cargo test --test integration_test -- --nocapture
+```
+
 ## Changelog
 
 [Changelog](CHANGELOG.md)
