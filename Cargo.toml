@@ -23,6 +23,6 @@ const_format = "0.2.26"
 syn = {version = "1.0.99", features = ["extra-traits"]}
 quote = "1.0.21"
 proc-macro2 = "1.0.43"
-wgpu = "0.13.1"
+wgpu = "0"
 bytemuck = { version = "1.4", features = [ "derive" ] }
 regex = "1.6.0"
